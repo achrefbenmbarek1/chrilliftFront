@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Image, Pressable, StyleSheet } from "react-native";
 import Feather from "react-native-vector-icons/Feather";
-import BleScanner from "../Connect/BleConnect.js";
+import BleScanner from "./Connect/BleConnect.js";
 
 const ImgBtn = () => {
   const [isConnected, setIsConnected] = useState(false);

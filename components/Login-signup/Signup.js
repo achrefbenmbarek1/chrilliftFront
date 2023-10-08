@@ -5,7 +5,6 @@ import Field from "./Field";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Animatable from "react-native-animatable";
 import config from "../../config";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Signup(props) {
   const [userData, setUserData] = useState({
@@ -22,50 +21,6 @@ export default function Signup(props) {
   });
   const [errormsg, setErrormsg] = useState(null);
 
-  // const Sendtobackend = () => {
-  //   if (
-  //     userData.firstName == "" ||
-  //     userData.lastName == "" ||
-  //     userData.password == "" ||
-  //     userData.cpassword == "" ||
-  //     userData.email == "" ||
-  //     userData.gender == "" ||
-  //     userData.phoneNumber == "" ||
-  //     userData.job == "" ||
-  //     userData.height == "" ||
-  //     userData.health == ""
-  //   ) {
-  //     setErrormsg("All fields are required");
-  //     return;
-  //   } else {
-  //     if (userData.password != userData.cpassword) {
-  //       setErrormsg("Password and Confirm Password must be same");
-  //
-  //       return;
-  //     } else {
-  //       fetch(`${config.API_BASE_URL}/signup`, {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(userData),
-  //       })
-  //         .then((res) => res.json()).then(
-  //           (data) => {
-  //             // console.log(data);
-  //             if (data.error === "Invalid Credentials") {
-  //               setErrormsg("Invalid Credentials");
-  //             } else if (data.message === "User registred Successfully") {
-  //               alert(data.message);
-  //               props.navigation.navigate("Login");
-  //             }
-  //           },
-  //         ).catch((error) => {
-  //           console.log(error);
-  //         });
-  //     }
-  //   }
-  // };
   const Sendtobackend = async () => {
     if (
       userData.firstName == "" ||
@@ -81,40 +36,41 @@ export default function Signup(props) {
     ) {
       setErrormsg("All fields are required");
       return;
-    } else {
-      const token = await AsyncStorage.getItem("token");
-      if (userData.password != userData.cpassword) {
-        setErrormsg("Password and Confirm Password must be the same");
-        return;
-      } /* else if (token !== null || token !== undefined || token !== "") {
-        setErrormsg("you're already connected to an account");
-        return; 
-      }*/ else {
-        try {
-          const response = await fetch(`${config.API_BASE_URL}/signup`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(userData),
-          });
+    }
+    
+    if (userData.password != userData.cpassword) {
+      setErrormsg("Password and Confirm Password must be the same");
+      return;
+    }
 
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
+    try {
+      const response = await fetch(`${config.API_BASE_URL}/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
 
-          const data = await response.json();
-
-          if (data.error === "Invalid Credentials") {
-            setErrormsg("Invalid Credentials");
-          } else if (data.message === "User registered Successfully") {
-            alert(data.message);
-            props.navigation.navigate("Login");
-          }
-        } catch (error) {
-          console.error(error);
-        }
+      if (!response.ok) {
+        console.log("fiwisit response not ok");
+        throw new Error("Network response was not ok");
       }
+
+      const data = await response.json();
+
+      console.log("bjeh rabi le");
+      console.log(data);
+      if (data.error === "Invalid Credentials") {
+        setErrormsg("Invalid Credentials");
+        console.log("ikhdim");
+      }
+      alert(data.message);
+      console.log("nahna 9wiyin");
+      props.navigation.navigate("Login");
+    } catch (error) {
+      console.log("errreur");
+      console.error(error);
     }
   };
 

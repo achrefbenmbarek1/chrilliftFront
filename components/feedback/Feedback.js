@@ -19,47 +19,35 @@ export default function FeedBack() {
   );
   const [dialogueColor, setDialogueColor] = useState("green");
   const scrollViewRef = useRef(null);
-  const [responseToQuestion1, setResponseToQuestion1] = useState("")
-  const [responseToQuestion2, setResponseToQuestion2] = useState("")
-  const [responseToQuestion3, setResponseToQuestion3] = useState("")
+  const [responseToQuestion1, setResponseToQuestion1] = useState("");
+  const [responseToQuestion2, setResponseToQuestion2] = useState("");
+  const [responseToQuestion3, setResponseToQuestion3] = useState("");
 
   const handleContentSizeChange = (event) => {
     scrollViewRef.current.scrollToEnd({ animated: true });
   };
 
-  /* const sendData = () => {
-    axios.post(`${config.API_BASE_URL}/feedbacks`, feedbackData, {
-      headers: { "Content-Type": "application/json" },
-      "Accept": "application/json",
-    })
-      .then((response) => {
-        setDialogueMessage(response.data);
-        setButtonClicked(true);
-      })
-      .catch((error) => {
-        console.log(error);
-        setDialogueMessage(
-          "please make sure that you have an internet connection and that you're logged in",
-        );
-        setDialogueColor("red");
-
-        console.log(dialogueMessage), setButtonClicked(true);
-      });
-  }; */
   const sendData = async () => {
     try {
-      token = await AsyncStorage.getItem('token');
+      token = await AsyncStorage.getItem("token");
       const questions = {
         "question1": responseToQuestion1,
         "question2": responseToQuestion2,
-        "question3": responseToQuestion3
-      }
+        "question3": responseToQuestion3,
+      };
       const feedbackData = {
         anythingToAdd,
         rating,
-        questions
+        questions,
+      };
+      console.log(token);
+      if (token == "") {
+        setDialogueMessage(
+          "Please make sure that you have an internet connection and that you're logged in",
+        );
+        setDialogueColor("red");
+        setButtonClicked(true);
       }
-      console.log(token)
       const response = await axios.post(
         `${config.API_BASE_URL}/feedbacks/`,
         feedbackData,
@@ -71,10 +59,8 @@ export default function FeedBack() {
           },
         },
       );
-      console.log("khlat")
       setDialogueMessage(response.data);
       setButtonClicked(true);
-      console.log("jawi behi")
     } catch (error) {
       console.error(error);
       setDialogueMessage(
@@ -121,9 +107,21 @@ export default function FeedBack() {
           ref={scrollViewRef}
           keyboardShouldPersistTaps="handled"
         >
-          <Input qst={question[0]} respondToQuestion={(responseToQuestion1)=> setResponseToQuestion1(responseToQuestion1)} />
-          <Input qst={question[1]} respondToQuestion={(responseToQuestion2)=> setResponseToQuestion2(responseToQuestion2)}/>
-          <Input qst={question[2]} respondToQuestion={(responseToQuestion3)=> setResponseToQuestion3(responseToQuestion3)}/>
+          <Input
+            qst={question[0]}
+            respondToQuestion={(responseToQuestion1) =>
+              setResponseToQuestion1(responseToQuestion1)}
+          />
+          <Input
+            qst={question[1]}
+            respondToQuestion={(responseToQuestion2) =>
+              setResponseToQuestion2(responseToQuestion2)}
+          />
+          <Input
+            qst={question[2]}
+            respondToQuestion={(responseToQuestion3) =>
+              setResponseToQuestion3(responseToQuestion3)}
+          />
           <Text style={styles.text}>Other</Text>
           <TextInput
             placeholderTextColor="#798C5B"
@@ -143,9 +141,8 @@ export default function FeedBack() {
           title={"Envoyer"}
           onClicked={() => sendData()}
         />
-        {buttonClicked
-          ? <Text style={{ color: dialogueColor }}>{dialogueMessage}</Text>
-          : null}
+        {buttonClicked &&
+          <Text style={{ color: dialogueColor }}>{dialogueMessage}</Text>}
       </View>
     </SafeAreaView>
   );

@@ -16,35 +16,6 @@ export default function Login(props) {
 
   const [errormsg, setErrormsg] = useState(null);
 
-  // const Sendtobackend = () => {
-  //   if (userCredentials.email == '' || userCredentials.password == '') {
-  //     setErrormsg('All fields are required');
-  //     return;
-  //   }
-  //   else {
-  //     fetch(`${config.API_BASE_URL}/signin`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify(userCredentials)
-  //     })
-  //       .then(res => res.json()).then(
-  //         data => {
-  //           // console.log(data);
-  //           if (data.error) {
-  //             console.log(data.error);
-  //             setErrormsg(data.error);
-  //           }
-  //           else {
-  //             AsyncStorage.setItem('token', token);
-  //             alert('logged successfully');
-  //             props.navigation.navigate('Home');
-  //           }
-  //         }
-  //       ).catch(error => { console.log(error); })
-  //   }
-  // }
   const Sendtobackend = async () => {
     if (userCredentials.email === "" || userCredentials.password === "") {
       setErrormsg("All fields are required");
@@ -70,6 +41,7 @@ export default function Login(props) {
       }
 
       const data = await response.json();
+      console.log(data);
 
       if (data.error) {
         console.log(data.error);
@@ -165,7 +137,8 @@ export default function Login(props) {
           <TouchableOpacity
             onPress={() =>
               props.navigation.navigate("HiddenNavigator", {
-                screen: "AnotherHiddenScreen",
+                // screen: "AnotherHiddenScreen",
+                screen: "Signup",
               })}
           >
             <Text

@@ -12,11 +12,42 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Dimensions } from "react-native";
 import HiddenNavigator from "./Navigators/HiddenNavigator";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Drawer = createDrawerNavigator();
 
 function App() {
   const height = Dimensions.get("window").height;
+  const renderLoginInNavigatorDrawer = () => {
+      return (
+        <Drawer.Screen
+          options={{
+            headerStyle: { backgroundColor: "white" },
+            drawerIcon: ({ color }) => (
+              <Ionicons name="book" size={22} color={color} />
+            ),
+            drawerItemStyle: { height: height * 0.08 },
+          }}
+          name="login/signup"
+          component={Login}
+        />
+      );
+  };
+  const renderLogoutInNavigatorDrawer = () => {
+      return (
+        <Drawer.Screen
+          options={{
+            headerStyle: { backgroundColor: "white" },
+            drawerIcon: ({ color }) => (
+              <MaterialIcons name="logout" size={22} color={color} />
+            ),
+            drawerItemStyle: { height: height * 0.08 },
+          }}
+          name="logout"
+          component={FeedBack}
+        />
+      );
+  };
   return (
     <NavigationContainer>
       <Drawer.Navigator
@@ -76,32 +107,11 @@ function App() {
           component={FeedBack}
         />
 
-        <Drawer.Screen
-          options={{
-            headerStyle: { backgroundColor: "white" },
-            drawerIcon: ({ color }) => (
-              <Ionicons name="book" size={22} color={color} />
-            ),
-            drawerItemStyle: { height: height * 0.08 },
-          }}
-          name="login/signup"
-          component={Login}
-        />
+        {AsyncStorage.getItem("token") ? renderLogoutInNavigatorDrawer() : renderLoginInNavigatorDrawer()}
         <Drawer.Screen
           name="HiddenNavigator"
           component={HiddenNavigator}
           options={{ drawerLabel: () => null }}
-        />
-        <Drawer.Screen
-          options={{
-            headerStyle: { backgroundColor: "white" },
-            drawerIcon: ({ color }) => (
-              <MaterialIcons name="logout" size={22} color={color} />
-            ),
-            drawerItemStyle: { marginTop: height * 0.5, height: height * 0.08 },
-          }}
-          name="logout"
-          component={FeedBack}
         />
       </Drawer.Navigator>
     </NavigationContainer>

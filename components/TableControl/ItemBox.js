@@ -3,7 +3,6 @@ import {
     View,
     Text,
     StyleSheet,
-    Dimensions,
     Animated,
     Pressable,
 } from 'react-native';
@@ -22,7 +21,7 @@ const ItemBox = (props) => {
             <Pressable onPress={props.handleDelete} activeOpacity={0.6}>
                 <View style={styles.deleteBox}>
                     <Animated.Text style={{ transform: [{ scale: scale }] }}>
-                        <EvilIcons name='trash' size={70} color="#5F7045"/>
+                        <EvilIcons name='trash' size={100} color="#5F7045"/>
                     </Animated.Text>
                 </View>
             </Pressable>
