@@ -1,14 +1,14 @@
-import React, { useEffect, useRef } from "react";
-import { Pressable, Text, View } from "react-native";
-import { StyleSheet } from "react-native";
-import { useState } from "react";
-import Sbtn from "./Sbtn.js";
-import ImgBtn from "./ImgBtn.js";
-import EncDec from "./IncDec.js";
+import React, {useEffect, useRef} from 'react';
+import {Pressable, Text, View} from 'react-native';
+import {StyleSheet} from 'react-native';
+import {useState} from 'react';
+import Sbtn from './Sbtn.js';
+import ImgBtn from './ImgBtn.js';
+import EncDec from './IncDec.js';
 
-const Table = () => {
+const Table = ({navigation}) => {
   const [heights, setHeights] = useState([]);
-  const [height, setHeight] = useState(100);
+  const [height, setHeight] = useState(80);
   const [
     haveWeJustReachedTheMaximumNumberOfHeights,
     setHaveWeJustReachedTheMaximumNumberOfHeights,
@@ -41,44 +41,52 @@ const Table = () => {
   //
   //   fetchData();
   // }, []);
+
   const decreaseNumber = () => {
-    if (height > 0) {
-      setHeight((heightNumber) => heightNumber - 1);
+    if (height > 70) {
+      setHeight(heightNumber => heightNumber - 1);
     }
   };
   const increaseNumber = () => {
-    setHeight((heightNumber) => heightNumber + 1);
+    if (height < 120) {
+      setHeight(heightNumber => heightNumber + 1);
+    }
   };
   const addHeight = () => {
     if (heights.length >= 10) {
       didWeReachTheMaximumNumberOfHeights.current = true;
       setHaveWeJustReachedTheMaximumNumberOfHeights(true);
-      console.log("maximum number of heights");
+      console.log('maximum number of heights');
       return;
     }
-    const isHeightPresent = heights.some((item) => item.text === height);
+    const isHeightPresent = heights.some(item => item.text === height);
     if (isHeightPresent) {
-      console.log("height is already present");
+      console.log('height is already present');
       return;
     }
     const ar = [...heights];
-    ar.unshift({ text: height, key: Math.random().toString() });
+    ar.unshift({text: height, key: Math.random().toString()});
     setHeights(ar);
   };
-  const deleteItem = (index) => {
+  const deleteItem = index => {
     const arr = [...heights];
     arr.splice(index, 1);
     setHeights(arr);
-    if (arr.length == 8) {
+    if (arr.length === 8) {
       setHaveWeJustReachedTheMaximumNumberOfHeights(false);
     }
   };
 
   return (
     <View style={styles.appContainer}>
+      {haveWeJustReachedTheMaximumNumberOfHeights && (
+        <Text style={styles.errorMessage}>
+          "you've reached the maximum number of saved heights for this table"
+        </Text>
+      )}
       <View style={styles.upContainer}>
         <Sbtn heightList={heights} deleteItem={deleteItem} />
-        <ImgBtn />
+        <ImgBtn navigation={navigation} />
       </View>
       <View style={styles.midContainer}>
         <EncDec
@@ -87,13 +95,6 @@ const Table = () => {
           heightNumber={height}
         />
       </View>
-      {haveWeJustReachedTheMaximumNumberOfHeights && (
-        <Text>
-          you've reached the maximum number of saved position, if you want to
-          add a new position you can always remove one of your already saved
-          positons
-        </Text>
-      )}
       <View style={styles.btmContainer}>
         <Pressable style={styles.saveContainer} onPress={addHeight}>
           <Text style={styles.saveText}>save</Text>
@@ -106,36 +107,43 @@ export default Table;
 const styles = StyleSheet.create({
   appContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   upContainer: {
     flex: 9,
-    flexDirection: "row",
-    width: "100%",
-    height: "90%",
+    flexDirection: 'row',
+    width: '100%',
+    height: '90%',
   },
   midContainer: {
     flex: 2,
-    flexDirection: "row",
-    width: "100%",
+    flexDirection: 'row',
+    width: '100%',
   },
   btmContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   saveContainer: {
     marginTop: 5,
     height: 60,
-    backgroundColor: "#5F7045",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
+    backgroundColor: '#5F7045',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
   saveText: {
-    textTransform: "uppercase",
-    color: "#fff",
+    textTransform: 'uppercase',
+    color: '#fff',
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
+  },
+  errorMessage: {
+    color: 'red',
+    fontSize: 16,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 10,
   },
 });
