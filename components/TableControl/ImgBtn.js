@@ -1,26 +1,180 @@
-import React, {useState} from 'react';
-import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  PermissionsAndroid,
+} from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import BleScanner from './Connect/BleConnect.js';
 import Swiper from 'react-native-swiper';
+import BleManager from 'react-native-ble-manager';
+import {ActivityIndicator} from 'react-native-paper';
 
-const ImgBtn = ({navigation}) => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [showBleScanner, setShowBleScanner] = useState(false);
+const ImgBtn = ({navigation, selectCharacteristicUUID, selectServiceUUID}) => {
+  const devices = useRef([]);
+  const [device, setDevice] = useState('');
+  const targetServicesUUID = useRef(['4fafc201-1fb5-459e-8fcc-c5c9c331914b']);
+  const [scanHasStarted, setScanHasStarted] = useState(false);
+  const targetCharacteriticsUUID = useRef([
+    'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+  ]);
 
-  const imageSources = [
+  const imageSources = useRef([
     require('../../images/table.jpg'),
     require('../../images/chilift.png'),
-  ];
-  const handleConnectPress = () => {
-    // Implement your connect logic here
-    setIsConnected(true);
+  ]);
+
+  async function checkPermissions() {
+    try {
+      const grantedFineLocation = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      console.log(
+        'ACCESS_FINE_LOCATION',
+        grantedFineLocation === PermissionsAndroid.RESULTS.GRANTED,
+      );
+
+      const grantedCoarseLocation = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      );
+      console.log(
+        'ACCESS_COARSE_LOCATION',
+        grantedCoarseLocation === PermissionsAndroid.RESULTS.GRANTED,
+      );
+
+      const grantedBluetoothScan = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+      );
+      console.log(
+        'BLUETOOTH_SCAN',
+        grantedBluetoothScan === PermissionsAndroid.RESULTS.GRANTED,
+      );
+
+      const grantedBluetoothConnect = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+      );
+      console.log(
+        'BLUETOOTH_CONNECT',
+        grantedBluetoothConnect === PermissionsAndroid.RESULTS.GRANTED,
+      );
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
+  const delay = milliseconds => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+      }, milliseconds);
+    });
   };
 
-  const handleShowScannerPress = () => {
-    navigation.navigate('HiddenNavigator', {screen: 'Scanner'});
-    // setShowBleScanner(!showBleScanner);
+  const startScan = async () => {
+    setScanHasStarted(true);
+    try {
+      await BleManager.scan(targetServicesUUID.current, 5, false, {});
+      await delay(5000);
+      const discoveredDevices = await BleManager.getDiscoveredPeripherals([]);
+      // devices.current = discoveredDevices.filter(async discoveredDevice => {
+      //   const retrievedServicesForDiscoveredDevice =
+      //     await BleManager.retrieveServices(discoveredDevice.id);
+      //   return targetServicesUUID.current.some(targetServiceUUID =>
+      //     retrievedServicesForDiscoveredDevice.some(
+      //       service => service.uuid === targetServiceUUID,
+      //     ),
+      //   );
+      // });
+      devices.current = discoveredDevices;
+      console.log('discoveredPeripherals:', devices.current);
+      await stopScan();
+    } catch (error) {
+      console.error('Error starting scan:', error);
+    } finally {
+      setScanHasStarted(false);
+    }
   };
+
+  const stopScan = async () => {
+    try {
+      await BleManager.stopScan();
+      console.log('scan stopped');
+    } catch (error) {
+      console.error('Error stopping scan:', error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const initialScan = async () => {
+      await checkPermissions();
+      await BleManager.enableBluetooth();
+      console.log('Bluetooth is already enabled');
+      await BleManager.start({showAlert: true});
+      console.log('BleManager started');
+      await startScan();
+    };
+    initialScan();
+  }, []);
+
+  const connectToDevice = async () => {
+    try {
+      if (devices.current.length === 0) {
+        console.log('no devices can be connected to');
+        return;
+      }
+      if (device !== '') {
+        await BleManager.disconnect(device.id);
+        setDevice('');
+        console.log('disconnect');
+        return;
+      }
+      console.log(
+        `Connecting to device: ${devices.current[0].name} (${devices.current[0].id})`,
+      );
+      await BleManager.connect(devices.current[0].id);
+      setDevice(devices.current[0]);
+      console.log(
+        `Connected to device: ${devices.current[0].name} (${devices.current[0].id})`,
+      );
+      const information = await BleManager.retrieveServices(
+        devices.current[0].id,
+      );
+      console.log(information);
+      const targetServices = information.services.filter(service =>
+        targetServicesUUID.current.includes(service.uuid),
+      );
+      if (!targetServices) {
+        await BleManager.disconnect(devices.current[0].id);
+        setDevice('');
+      }
+      selectServiceUUID(targetServices[0].uuid);
+      const targetCharacteristics = information.characteristics.filter(
+        characteristic =>
+          targetCharacteriticsUUID.current.includes(
+            characteristic.characteristic,
+          ),
+      );
+      if (!targetCharacteristics) {
+        await BleManager.disconnect(devices.current[0].id);
+        setDevice('');
+      }
+      selectCharacteristicUUID(targetCharacteristics[0].characteristic);
+    } catch (error) {
+      console.error(
+        `Failed to connect to device: ${devices.current[0].name}(${devices.current[0].id})\n`,
+        error,
+      );
+      setDevice('');
+    }
+  };
+
+  // const handleShowScannerPress = () => {
+  //   navigation.navigate('HiddenNavigator', {screen: 'Scanner'});
+  //   // setShowBleScanner(!showBleScanner);
+  // };
 
   return (
     <View style={styles.container}>
@@ -31,31 +185,32 @@ const ImgBtn = ({navigation}) => {
         />
         <Pressable
           style={styles.connectButton}
-          onPress={handleConnectPress}
-          disabled={isConnected}>
+          onPress={connectToDevice}
+          disabled={scanHasStarted}>
           <Text style={styles.connectButtonText}>
-            {isConnected ? 'Connected' : 'Connect'}
+            {device ? 'Disconnect' : 'Connect'}
           </Text>
           <Feather name="bluetooth" size={17} style={styles.connectIcon} />
         </Pressable>
       </View>
       <View style={styles.imageContainer}>
-        <Swiper showsButtons={false} showsPagination={false} loop={true}>
-          {imageSources.map((source, index) => (
-            <View key={index}>
-              <Image source={source} style={styles.image} />
-            </View>
-          ))}
-        </Swiper>
-        <Pressable
-          style={styles.showScannerButton}
-          onPress={handleShowScannerPress}>
-          <Text style={styles.showScannerButtonText}>
-            {showBleScanner ? 'Hide' : 'Show'} Scanner
-          </Text>
-        </Pressable>
+        {scanHasStarted ? (
+          <ActivityIndicator size="large" color="#5F7045" />
+        ) : (
+          <>
+            <Swiper showsButtons={false} showsPagination={false} loop={true}>
+              {imageSources.current.map((source, index) => (
+                <View key={index}>
+                  <Image source={source} style={styles.image} />
+                </View>
+              ))}
+            </Swiper>
+            <Pressable style={styles.showScannerButton} onPress={startScan}>
+              <Text style={styles.showScannerButtonText}>Scan for tables</Text>
+            </Pressable>
+          </>
+        )}
       </View>
-      {showBleScanner && <BleScanner />}
     </View>
   );
 };

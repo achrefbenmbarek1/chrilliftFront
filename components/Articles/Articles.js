@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import config from "../../config";
+import React, {useEffect, useState} from 'react';
+import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import config from '../../config';
+import {WebView} from 'react-native-webview';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
-const Article = () => {
+const Articles = ({navigation}) => {
   const [articles, setArticles] = useState([]);
+  const url =
+    'https://chilift.co/module/xipblog/single?id=9&rewrite=&page_type=0';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -11,37 +16,60 @@ const Article = () => {
         const response = await fetch(`${config.API_BASE_URL}/articles/all`);
 
         if (!response.ok) {
-          throw new Error("problem when fetching");
+          throw new Error('problem when fetching');
         }
         const data = await response.json();
         setArticles(data);
         console.log(articles);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching data:', error);
       }
     };
 
     fetchData();
   }, []);
 
+  const handleArticlePress = url => {
+    console.log("let's navigate", url);
+    navigation.navigate('Article', {url});
+    console.log('did it happen');
+  };
+
   return (
     <ScrollView>
       {articles?.map((article, index) => (
-        <View style={styles.container} key={index}>
-          <View style={styles.titleBox}>
-            <Text style={styles.title}>{article.title}</Text>
+        <TouchableOpacity
+          key={index}
+          onPress={() =>
+            handleArticlePress(
+              'https://chilift.co/module/xipblog/single?id=9&rewrite=&page_type=0',
+            )
+          }>
+          <View style={styles.container}>
+            <View style={styles.titleBox}>
+              <Text style={styles.title}>{article.title}</Text>
+            </View>
+            <View style={styles.mini}>
+              <Image
+                source={{
+                  uri:
+                    config.API_BASE_URL + '/imagesArticle/' + article.imageName,
+                }}
+                style={styles.image}
+              />
+              <Text style={styles.desc}>{article.content}</Text>
+            </View>
           </View>
-          <View style={styles.mini}>
-            <Image source={{ uri: config.API_BASE_URL + '/imagesArticle/' + article.imageName }} style={styles.image} />
-            <Text style={styles.desc}>{article.content}</Text>
-          </View>
-        </View>
+        </TouchableOpacity>
       ))}
+      <View style={{flex: 1}}>
+        <WebView source={{uri: url}} />
+      </View>
     </ScrollView>
   );
 };
 
-export default Article;
+export default Articles;
 
 const styles = StyleSheet.create({
   container: {
@@ -53,18 +81,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#9db67a',
     elevation: 20,
     shadowColor: 'black',
-    shadowOffset: { width: -2, height: 4 },
+    shadowOffset: {width: -2, height: 4},
   },
   mini: {
     backgroundColor: 'white',
     borderTopRightRadius: 40,
     borderTopLeftRadius: 40,
     borderRadius: 20,
-    overflow: 'hidden', 
+    overflow: 'hidden',
   },
   image: {
-    width: '100%', 
-    aspectRatio: 1, 
+    width: '100%',
+    aspectRatio: 1,
   },
   titleBox: {
     borderWidth: 0,
@@ -93,4 +121,3 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
 });
-

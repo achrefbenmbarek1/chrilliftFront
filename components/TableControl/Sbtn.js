@@ -3,7 +3,7 @@ import {StyleSheet} from 'react-native';
 import {FlatList} from 'react-native-gesture-handler';
 import ItemBox from './ItemBox';
 
-const Sbtn = ({heightList, deleteItem}) => {
+const Sbtn = ({heightList, deleteItem, applySavedHeight}) => {
   return (
     <View style={{width: '30%', paddingLeft: 20, marginTop: 20}}>
       <Pressable></Pressable>
@@ -15,6 +15,7 @@ const Sbtn = ({heightList, deleteItem}) => {
             <ItemBox
               data={itemData}
               handleDelete={() => deleteItem(itemData.index)}
+              handleApply={() => applySavedHeight(itemData.index)}
             />
           );
         }}
