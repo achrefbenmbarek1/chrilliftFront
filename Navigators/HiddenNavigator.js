@@ -4,7 +4,7 @@ import Signup from '../components/Login-signup/Signup';
 import Login from '../components/Login-signup/Login';
 import BleScanner from '../components/TableControl/Connect/BleConnect';
 import Table from '../components/TableControl/Table';
-import Article from '../components/Articles/Articles';
+import Article from '../components/Articles/Article';
 
 const Stack = createNativeStackNavigator();
 

@@ -18,13 +18,21 @@ const Drawer = createDrawerNavigator();
 
 function App() {
   const height = Dimensions.get('window').height;
+  const [token, setToken] = React.useState(null);
+  React.useEffect(() => {
+    const retrieveToken = async () => {
+      const temp = await AsyncStorage.getItem('token');
+      setToken(temp);
+    };
+    retrieveToken();
+  }, [token]);
   const renderLoginInNavigatorDrawer = () => {
     return (
       <Drawer.Screen
         options={{
           headerStyle: {backgroundColor: 'white'},
           drawerIcon: ({color}) => (
-            <Ionicons name="book" size={22} color={color} />
+            <Ionicons name="log-in" size={22} color={color} />
           ),
           drawerItemStyle: {height: height * 0.08},
         }}
@@ -45,6 +53,7 @@ function App() {
         }}
         name="logout"
         component={FeedBack}
+        initialParams={{isLoggingOut: true}}
       />
     );
   };
@@ -106,7 +115,7 @@ function App() {
           component={FeedBack}
         />
 
-        {AsyncStorage.getItem('token')
+        {token
           ? renderLogoutInNavigatorDrawer()
           : renderLoginInNavigatorDrawer()}
         <Drawer.Screen

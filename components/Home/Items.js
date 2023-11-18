@@ -1,9 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Item from './Item';
 
 const Items = ({navigation}) => {
+  const [token, setToken] = useState(null);
+  useEffect(() => {
+    const retrieveToken = async () => {
+      const temp = await AsyncStorage.getItem('token');
+      setToken(temp);
+    };
+    retrieveToken();
+  }, [token]);
   const renderLoginInHomePage = () => {
     return (
       <Item
@@ -33,7 +41,7 @@ const Items = ({navigation}) => {
           txt="Articles"
           img={require('../../images/a.jpg')}
         />
-        {AsyncStorage.getItem('token') ? null : renderLoginInHomePage()}
+        {token ? null : renderLoginInHomePage()}
       </View>
     </View>
   );

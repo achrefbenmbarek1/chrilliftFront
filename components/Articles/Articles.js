@@ -3,7 +3,7 @@ import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import config from '../../config';
 import {WebView} from 'react-native-webview';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Articles = ({navigation}) => {
   const [articles, setArticles] = useState([]);
@@ -13,6 +13,8 @@ const Articles = ({navigation}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = await AsyncStorage.getItem('token');
+        console.log('is it gone hopefully',token);
         const response = await fetch(`${config.API_BASE_URL}/articles/all`);
 
         if (!response.ok) {
@@ -31,7 +33,7 @@ const Articles = ({navigation}) => {
 
   const handleArticlePress = url => {
     console.log("let's navigate", url);
-    navigation.navigate('Article', {url});
+    navigation.navigate('HiddenNavigator', {screen: 'Article', params: {url}});
     console.log('did it happen');
   };
 
@@ -62,9 +64,6 @@ const Articles = ({navigation}) => {
           </View>
         </TouchableOpacity>
       ))}
-      <View style={{flex: 1}}>
-        <WebView source={{uri: url}} />
-      </View>
     </ScrollView>
   );
 };

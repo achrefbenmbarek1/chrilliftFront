@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react';
+import {React, useRef, useState} from 'react';
 import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import {CustomRatingBar} from './CustomRatingBar';
 import {RoundedButton} from './RoundedButton';
@@ -9,7 +9,7 @@ import Input from './Input';
 import config from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function FeedBack() {
+export default function FeedBack({route, navigation}) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const maxRating = useRef([1, 2, 3, 4, 5]);
   const [rating, setRating] = useState(2);
@@ -61,6 +61,12 @@ export default function FeedBack() {
       );
       setDialogueMessage(response.data);
       setButtonClicked(true);
+      const isLoggingOut = route.params;
+      if (!isLoggingOut) {
+        return;
+      }
+      await AsyncStorage.removeItem('token');
+      navigation.navigate('Home');
     } catch (error) {
       console.error(error);
       setDialogueMessage(
