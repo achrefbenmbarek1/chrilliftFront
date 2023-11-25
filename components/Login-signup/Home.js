@@ -1,20 +1,20 @@
-import { Text, View, StyleSheet } from "react-native";
+import {Text, View, StyleSheet} from 'react-native';
 
-import React from "react";
-import Btn from "./Btn";
-import { SafeAreaView } from "react-native-safe-area-context";
-const Home = (props) => {
+import React from 'react';
+import Btn from './Btn';
+import {SafeAreaView} from 'react-native-safe-area-context';
+const Home = props => {
   return (
     <SafeAreaView>
       <View style={styles.mainview}>
         <Text style={styles.text}>Welcome to Chilift App</Text>
         <Btn
           btnLabel="Login"
-          Press={() => props.navigation.navigate("Login")}
+          Press={() => props.navigation.navigate('Login')}
         />
         <Btn
           btnLabel="Signup"
-          Press={() => props.navigation.navigate("Signup")}
+          Press={() => props.navigation.navigate('Signup')}
         />
       </View>
     </SafeAreaView>
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   text: {
-    color: "white",
+    color: 'white',
     fontSize: 64,
     paddingVertical: 100,
   },

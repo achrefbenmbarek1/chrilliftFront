@@ -1,18 +1,10 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import Item from './Item';
 
-const Items = ({navigation}) => {
-  const [token, setToken] = useState(null);
-  useEffect(() => {
-    const retrieveToken = async () => {
-      const temp = await AsyncStorage.getItem('token');
-      setToken(temp);
-    };
-    retrieveToken();
-  }, [token]);
+const Items = ({navigation, token}) => {
   const renderLoginInHomePage = () => {
+    console.log('are we setting it', token);
     return (
       <Item
         onPress={() => navigation.navigate('login/signup')}
@@ -41,7 +33,7 @@ const Items = ({navigation}) => {
           txt="Articles"
           img={require('../../images/a.jpg')}
         />
-        {token ? null : renderLoginInHomePage()}
+        {!token && renderLoginInHomePage()}
       </View>
     </View>
   );

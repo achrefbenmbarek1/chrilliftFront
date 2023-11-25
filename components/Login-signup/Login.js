@@ -8,7 +8,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import config from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Login(props) {
+export default function Login({login, navigation}) {
   const [userCredentials, setUserCredentials] = useState({
     email: '',
     password: '',
@@ -59,10 +59,11 @@ export default function Login(props) {
         return;
       }
       const data = await response.json();
-      console.log(data);
+      console.log('you were a good fighter', data?.token);
       await AsyncStorage.setItem('token', data.token);
+      login(data.token);
       alert('Logged in successfully');
-      props.navigation.navigate('Home');
+      navigation.navigate('Home');
 
       // if (data.error) {
       //   console.log(data.error);
@@ -149,7 +150,7 @@ export default function Login(props) {
           <Text style={{fontSize: 18}}>Don't Have Account ?</Text>
           <TouchableOpacity
             onPress={() =>
-              props.navigation.navigate('HiddenNavigator', {
+              navigation.navigate('HiddenNavigator', {
                 // screen: "AnotherHiddenScreen",
                 screen: 'Signup',
               })

@@ -9,7 +9,7 @@ import Input from './Input';
 import config from '../../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function FeedBack({route, navigation}) {
+export default function FeedBack({route, navigation, logout, isLoggingOut}) {
   const [buttonClicked, setButtonClicked] = useState(false);
   const maxRating = useRef([1, 2, 3, 4, 5]);
   const [rating, setRating] = useState(2);
@@ -61,11 +61,16 @@ export default function FeedBack({route, navigation}) {
       );
       setDialogueMessage(response.data);
       setButtonClicked(true);
-      const isLoggingOut = route.params;
+      // const isLoggingOut = route.params;
+      // const setToken = route.params;
       if (!isLoggingOut) {
         return;
       }
       await AsyncStorage.removeItem('token');
+      logout();
+      const supposedlyEmptyToken = await AsyncStorage.getItem('token');
+      console.log('just in case', supposedlyEmptyToken);
+      // setToken(null);
       navigation.navigate('Home');
     } catch (error) {
       console.error(error);

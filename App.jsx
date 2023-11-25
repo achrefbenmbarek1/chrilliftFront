@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import Login from './components/Login-signup/Login';
 import HomeScreen from './components/Home/AppHome';
 import Articles from './components/Articles/Articles';
@@ -19,13 +19,25 @@ const Drawer = createDrawerNavigator();
 function App() {
   const height = Dimensions.get('window').height;
   const [token, setToken] = React.useState(null);
-  React.useEffect(() => {
-    const retrieveToken = async () => {
+  const retrieveToken = async () => {
+    try {
       const temp = await AsyncStorage.getItem('token');
+      console.log('this is my token', temp);
       setToken(temp);
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  React.useEffect(() => {
     retrieveToken();
-  }, [token]);
+  }, []);
+  const logout = () => {
+    setToken(null);
+  };
+  const login = value => {
+    setToken(value);
+  };
+
   const renderLoginInNavigatorDrawer = () => {
     return (
       <Drawer.Screen
@@ -36,9 +48,9 @@ function App() {
           ),
           drawerItemStyle: {height: height * 0.08},
         }}
-        name="login/signup"
-        component={Login}
-      />
+        name="login/signup">
+        {props => <Login {...props} login={login} />}
+      </Drawer.Screen>
     );
   };
   const renderLogoutInNavigatorDrawer = () => {
@@ -51,10 +63,9 @@ function App() {
           ),
           drawerItemStyle: {height: height * 0.08},
         }}
-        name="logout"
-        component={FeedBack}
-        initialParams={{isLoggingOut: true}}
-      />
+        name="logout">
+        {props => <FeedBack logout={logout} isLoggingOut={true} {...props} />}
+      </Drawer.Screen>
     );
   };
   return (
@@ -80,6 +91,7 @@ function App() {
             drawerItemStyle: {height: height * 0.08},
           }}
           component={HomeScreen}
+          initialParams={{token}}
         />
         <Drawer.Screen
           options={{
